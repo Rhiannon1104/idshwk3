@@ -1,32 +1,32 @@
-global agent:table[addr,string] of int = table();
-global rem : table[addr] of int=table();
+global agent : table[addr,string] of int = table();
+global rem : table[addr] of int = table();
 
 event http_request(c: connection, method: string, original_URI: string, unescaped_URI: string, version: string)
 	{
-		if([c$http$id$orig_h,to_lower(c$http$user_agent)] !in agent)
+		if([c$id$orig_h, to_lower( c$http$user_agent)] !in agent)
 		{
-			agent[c$http$id$orig_h,to_lower(c$http$user_agent)]=1;
+			agent[c$id$orig_h, to_lower(c$http$user_agent)]=1;
 		}
 	}
 	
 event zeek_done()
 	{
-		for([i,j] in agent)
+		for([j,i] in agent)
 		{
-			if(i !in rem)
+			if(j !in rem)
 			{
-				rem[i]=1;
+				rem[j]=1;
 			}
 			else 
 			{
-				rem[i]+=1;
+				rem[j]+=1;
 			}
 		}
-		for([i,j] in agent)
+		for(j in rem)
 		{
-			if( rem[i] >= 3 )
+			if( rem[j] >= 3 )
 			{
-				print fmt("%s is a proxy",i);
+				print fmt("%s is a proxy",j);
 			}
 		}
 	}
