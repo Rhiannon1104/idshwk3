@@ -1,17 +1,24 @@
-global agent:table[string] of int;
+global agent:table[addr] of table[string] of int;
 
 event http_header(c: connection, is_orig: bool, name: string, value: string)
 	{
-		if(!agent[value.user-agent])
+		local ipaddr : addr = c$id$orig_h;
+		local ua : string = to_lower(c$http$user_agent);
+		if(ipaddr !in agent)
 		{
-			agent[value.user-agent]=1;
+			agent[ipaddr];
 		}
-		eles
+		
+		if(ua !in agent[ipaddr])
 		{
-			agent[value.user-agent]+=1;
-			if(agent[value.user-agent]==3)
+			agent[ipaddr][ua]=1;
+		}
+		else
+		{
+			agent[ipaddr][ua]+=1;
+			if(agent[ipaddr][ua]==3)
 			{
-				print c.sourceip+" is a proxy";
+				print fmt("%s is a proxy",ipaddr);
 			}
 		}
 	}
