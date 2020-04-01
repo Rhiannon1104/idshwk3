@@ -6,10 +6,9 @@ event http_header(c: connection, is_orig: bool, name: string, value: string)
 		local ua : string = to_lower(c$http$user_agent);
 		if(ipaddr !in agent)
 		{
-			agent[ipaddr];
+			agent[ipaddr][ua]=1;
 		}
-		
-		if(ua !in agent[ipaddr])
+		else if(ua !in agent[ipaddr])
 		{
 			agent[ipaddr][ua]=1;
 		}
