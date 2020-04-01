@@ -1,23 +1,32 @@
-global agent:table[addr] of table[string] of int;
+global agent:table[addr,string] of int = table();
+global rem : table[addr] of int=table();
 
-event http_header(c: connection, is_orig: bool, name: string, value: string)
+event http_request(c: connection, method: string, original_URI: string, unescaped_URI: string, version: string)
 	{
-		local ipaddr : addr = c$id$orig_h;
-		local ua : string = to_lower(c$http$user_agent);
-		if(ipaddr !in agent)
+		if([c$http$id$orig_h,to_lower(c$http$user_agent)] !in agent)
 		{
-			agent[ipaddr][ua]=1;
+			agent[c$http$id$orig_h,to_lower(c$http$user_agent)]=1;
 		}
-		else if(ua !in agent[ipaddr])
+	}
+	
+event zeek_done()
+	{
+		for([i,j] in agent)
 		{
-			agent[ipaddr][ua]=1;
-		}
-		else
-		{
-			agent[ipaddr][ua]+=1;
-			if(agent[ipaddr][ua]==3)
+			if(i !in rem)
 			{
-				print fmt("%s is a proxy",ipaddr);
+				rem[i]=1;
+			}
+			else 
+			{
+				rem[i]+=1;
+			}
+		}
+		for([i,j] in agent)
+		{
+			if( rem[i] >= 3 )
+			{
+				print fmt("%s is a proxy",i);
 			}
 		}
 	}
