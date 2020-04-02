@@ -1,7 +1,7 @@
 global agent : table[addr,string] of int = table();
 global rem : table[addr] of int = table();
 
-event http_request(c: connection, method: string, original_URI: string, unescaped_URI: string, version: string)
+event http_all_header(c: connection, is_orig: bool, hlist: mime_header_list)
 	{
 		if([c$id$orig_h, to_lower( c$http$user_agent)] !in agent)
 		{
